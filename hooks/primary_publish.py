@@ -133,9 +133,16 @@ class PrimaryPublishHook(Hook):
         
         if os.path.exists(publish_path):
             raise TankError("The published file named '%s' already exists!" % publish_path)
-        
+
+        # do playblast:
+        progress_cb(10.0, "Creating playblast")
+        engine = self.parent.engine
+        playblast_app = engine.apps.get("tk-maya-playblast")
+        playblast_manager = playblast_app.get_playblast_manager()
+        playblast_manager.doPlayblast()
+
         # save the scene:
-        progress_cb(10.0, "Saving the scene")
+        progress_cb(20.0, "Saving the scene")
         self.parent.log_debug("Saving the scene...")
         cmds.file(save=True, force=True)
         

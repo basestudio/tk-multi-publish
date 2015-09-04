@@ -16,6 +16,9 @@ import tank
 from tank import Hook
 from tank import TankError
 
+from datetime import datetime
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 
 class PrimaryPublishHook(Hook):
     """
@@ -140,6 +143,15 @@ class PrimaryPublishHook(Hook):
         playblast_app = engine.apps.get("tk-maya-playblast")
         playblast_manager = playblast_app.get_playblast_manager()
         playblast_manager.doPlayblast()
+
+        # modify comment to include local commit details
+        currentDatetime = datetime.now().strftime(TIMESTAMP_FORMAT)
+        descriptionForm = "%(comment)s\n\nPublish by %(username)s at %(hostname)s on %(datetime)s"
+        comment = descriptionForm % dict(
+            comment=publish_form.comment,
+            datetime=currentDatetime,
+            username=os.environ.get("USERNAME", "unknown"),
+            hostname=os.environ.get("COMPUTERNAME", "unknown"))
 
         # save the scene:
         progress_cb(20.0, "Saving the scene")
